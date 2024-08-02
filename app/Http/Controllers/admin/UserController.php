@@ -12,12 +12,18 @@ class UserController extends Controller
 {
     public function Index()
     {
-        $users = User::all();
         $isSuperAdmin = 0;
+        $user_id = null;
+        $auth_user = null;
+        if(Auth::check() && Auth::user()){
+            $user_id = Auth::user()->id;
+            $auth_user = Auth::user();
+        }
         if (Auth::check() && Auth::user()->isSuperAdmin) {
             $isSuperAdmin = 1;
         }
-        return view('admin.home.index', compact('users', "isSuperAdmin"));
+        $users = User::where('id', "!=", $user_id)->get();
+        return view('admin.home.index', compact('users', "isSuperAdmin",'user_id',"auth_user"));
     }
 
     public function UpdateUserIndex($slug)
@@ -39,6 +45,7 @@ class UserController extends Controller
             'email' => 'required|email|max:255',
             'isAdmin' => 'boolean',
             'isActive' => 'boolean',
+            'slug' => 'string'
         ]);
 
         if ($validator->fails()) {
@@ -53,6 +60,7 @@ class UserController extends Controller
                 'email' => $request->email,
                 'isAdmin' => $admin,
                 'isActive' => $active,
+                'slug' => strtolower($request->name)
             ]);
 
             $user->save();
@@ -83,6 +91,7 @@ class UserController extends Controller
             'email' => 'required|email|max:255',
             'isAdmin' => 'boolean',
             'isActive' => 'boolean',
+            'slug' => 'string'
         ]);
 
         if ($validator->fails()) {
@@ -97,6 +106,7 @@ class UserController extends Controller
                 'email' => $request->email,
                 'isAdmin' => $admin,
                 'isActive' => $active,
+                'slug' => strtolower($request->name)
             ]);
 
             $user->save();

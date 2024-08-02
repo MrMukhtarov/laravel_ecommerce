@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\admin\AdminLoginController;
 use App\Http\Controllers\admin\AdminRegisterController;
+use App\Http\Controllers\admin\ProductController;
 use App\Http\Controllers\admin\UserController;
 use App\Http\Controllers\front\AuthController;
+use App\Http\Controllers\front\CommentController;
 use App\Http\Controllers\front\ContactController;
 use App\Http\Controllers\front\HomeController;
 use App\Http\Controllers\front\MessageController;
@@ -28,6 +30,8 @@ Route::post('/message', [MessageController::class, "create"])->name("message.cre
 Route::get('/auth', [AuthController::class, "index"])->name("auth");
 Route::post('/auth-register', [AuthController::class, "store"])->name("auth.register");
 Route::post('/auth-login', [AuthController::class, "login"])->name("auth.login");
+Route::post('/post-comment', [CommentController::class, "create"])->name("comment")->middleware('comment');
+Route::delete('/post-comment/{id}', [CommentController::class, "delete"])->name("comment-delete");
 
 Route::prefix('admin1')->group(function () {
     Route::get("/", [UserController::class, "index"])->name("admin.home")->middleware('admin');
@@ -39,4 +43,5 @@ Route::prefix('admin1')->group(function () {
     Route::post("/user-updateA/{slug}", [UserController::class, "UpdateUser"])->name("admin.user.updateA");
     Route::get("/single-user-update/{slug}", [UserController::class, "UpdateSingleUserIndex"])->name("admin.single.user.update");
     Route::post("/single-user-updateA/{slug}", [UserController::class, "UpdateSingleUser"])->name("admin.single.user.updateA");
+    Route::get("/products", [ProductController::class, "index"])->name("admin.products");
 });

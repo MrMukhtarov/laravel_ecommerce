@@ -16,7 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminLoginMiddleware::class,
             'admin_register' => \App\Http\Middleware\AdminRegisterMiddleware::class,
-            'user_update' => \App\Http\Middleware\UserUpdateMiddleware::class
+            'user_update' => \App\Http\Middleware\UserUpdateMiddleware::class,
+            'comment' => \App\Http\Middleware\CommentMiddleware::class,
         ]);
         //
     })

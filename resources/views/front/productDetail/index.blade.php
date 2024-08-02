@@ -1,6 +1,9 @@
 @extends('front.layouts.master')
 @section('title', 'Product Detail')
 @section('content')
+    @php
+        $review_count = 0;
+    @endphp
     <div class="site-wrapper" id="top">
         <section class="breadcrumb-section">
             <h2 class="sr-only">Site Breadcrumb</h2>
@@ -61,7 +64,7 @@
                             <p class="tag-block">
                                 Tags:
                                 @foreach ($product->tags as $tag)
-                                 <a href="#">{{ $tag->name }}</a>{{$loop->last ? " " : ","}}
+                                    <a href="#">{{ $tag->name }}</a>{{ $loop->last ? ' ' : ',' }}
                                 @endforeach
                             </p>
                             <h3 class="product-title">
@@ -87,16 +90,22 @@
                                     class="price-new">£{{ $product->price - ($product->price * $product->discountPercent) / 100 }}</span>
                                 <del class="price-old">£{{ $product->price }}</del>
                             </div>
+                            @php
+                                $avarage_rating = $product->reviews()->average('rating');
+                            @endphp
                             <div class="rating-widget">
                                 <div class="rating-block">
-                                    <span class="fas fa-star star_on"></span>
-                                    <span class="fas fa-star star_on"></span>
-                                    <span class="fas fa-star star_on"></span>
-                                    <span class="fas fa-star star_on"></span>
-                                    <span class="fas fa-star "></span>
+
+                                    @for ($i = 1; $i <= $avarage_rating; $i++)
+                                        <span class="ion-android-star-outline star_on"></span>
+                                    @endfor
+                                    @for ($i = $avarage_rating + 1; $i <= 5; $i++)
+                                        <span class="ion-android-star-outline"></span>
+                                    @endfor
+
                                 </div>
                                 <div class="review-widget">
-                                    <a href="">(1 Reviews)</a> <span>|</span>
+                                    <a href="">({{ $product->reviews()->count() }} Reviews)</a> <span>|</span>
                                     <a href="">Write a review</a>
                                 </div>
                             </div>
@@ -133,7 +142,7 @@
                         <li class="nav-item">
                             <a class="nav-link" id="tab2" data-toggle="tab" href="#tab-2" role="tab"
                                 aria-controls="tab-2" aria-selected="true">
-                                REVIEWS (1)
+                                REVIEWS ({{ count($product->reviews) }})
                             </a>
                         </li>
                     </ul>
@@ -149,74 +158,76 @@
                         <div class="tab-pane fade" id="tab-2" role="tabpanel" aria-labelledby="tab2">
                             <div class="review-wrapper">
                                 <h2 class="title-lg mb--20">
-                                    1 REVIEW FOR AUCTOR GRAVIDA ENIM
+                                    {{ count($product->reviews) }} REVIEW FOR AUCTOR GRAVIDA ENIM
                                 </h2>
-                                <div class="review-comment mb--20">
-                                    <div class="avatar">
-                                        <img src="assets/image/icon/author-logo.png" alt="" />
-                                    </div>
-                                    <div class="text">
-                                        <div class="rating-block mb--15">
-                                            <span class="ion-android-star-outline star_on"></span>
-                                            <span class="ion-android-star-outline star_on"></span>
-                                            <span class="ion-android-star-outline star_on"></span>
-                                            <span class="ion-android-star-outline"></span>
-                                            <span class="ion-android-star-outline"></span>
+                                @foreach ($product->reviews as $review)
+                                    <div class="review-comment mb--20">
+                                        <div class="avatar">
+                                            <img src="assets/image/icon/author-logo.png" alt="" />
                                         </div>
-                                        <h6 class="author">
-                                            ADMIN –
-                                            <span class="font-weight-400">March 23, 2015</span>
-                                        </h6>
-                                        <p>
-                                            Lorem et placerat vestibulum, metus nisi posuere nisl,
-                                            in accumsan elit odio quis mi.
-                                        </p>
+                                        <div class="text">
+                                            <div class="rating-block mb--15">
+                                                <div class="rating">
+                                                    @for ($i = 1; $i <= (int) $review->rating; $i++)
+                                                        <span class="ion-android-star-outline star_on"></span>
+                                                    @endfor
+                                                    @for ($i = (int) $review->rating + 1; $i <= 5; $i++)
+                                                        <span class="ion-android-star-outline"></span>
+                                                    @endfor
+                                                </div>
+                                            </div>
+                                            <h6 class="author">
+                                                {{ $review->user->name }} –
+                                                <span
+                                                    class="font-weight-400">{{ $review->created_at->translatedFormat('d F,Y') }}</span>
+                                            </h6>
+                                            <p>
+                                                {{ $review->review }}
+                                            </p>
+                                            @if ($user_id == $review->user_id)
+                                            <div class="delete-button-container">
+                                                <form action="{{ route('comment-delete', ['id' => $review->id]) }}"
+                                                    method="POST">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="delete-button">🗑️</button>
+                                                </form>
+                                            </div>
+                                            @endif
+                                           
+                                        </div>
                                     </div>
-                                </div>
+                                @endforeach
                                 <h2 class="title-lg mb--20 pt--15">ADD A REVIEW</h2>
                                 <div class="rating-row pt-2">
-                                    <p class="d-block">Your Rating</p>
-                                    <span class="rating-widget-block">
-                                        <input type="radio" name="star" id="star1" />
-                                        <label for="star1"></label>
-                                        <input type="radio" name="star" id="star2" />
-                                        <label for="star2"></label>
-                                        <input type="radio" name="star" id="star3" />
-                                        <label for="star3"></label>
-                                        <input type="radio" name="star" id="star4" />
-                                        <label for="star4"></label>
-                                        <input type="radio" name="star" id="star5" />
-                                        <label for="star5"></label>
-                                    </span>
-                                    <form action="./" class="mt--15 site-form">
+                                    <form action="{{ route('comment') }}" method="POST" class="mt--15 site-form">
+                                        @csrf
+                                        <div class="d-flex">
+                                            <p class="d-block mx-3">Your Rating</p>
+                                            <span class="rating-widget-block d-flex">
+                                                <input type="radio" name="rating" id="star5" value="5" />
+                                                <label for="star5"></label>
+                                                <input type="radio" name="rating" id="star4" value="4" />
+                                                <label for="star4"></label>
+                                                <input type="radio" name="rating" id="star3" value="3" />
+                                                <label for="star3"></label>
+                                                <input type="radio" name="rating" id="star2" value="2" />
+                                                <label for="star2"></label>
+                                                <input type="radio" name="rating" id="star1" value="1" />
+                                                <label for="star1"></label>
+                                            </span>
+                                        </div>
                                         <div class="row">
                                             <div class="col-12">
                                                 <div class="form-group">
                                                     <label for="message">Comment</label>
-                                                    <textarea name="message" id="message" cols="30" rows="10" class="form-control"></textarea>
+                                                    <textarea name="review" id="message" cols="30" rows="10" class="form-control"></textarea>
                                                 </div>
-                                            </div>
-                                            <div class="col-lg-4">
-                                                <div class="form-group">
-                                                    <label for="name">Name *</label>
-                                                    <input type="text" id="name" class="form-control" />
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4">
-                                                <div class="form-group">
-                                                    <label for="email">Email *</label>
-                                                    <input type="text" id="email" class="form-control" />
-                                                </div>
-                                            </div>
-                                            <div class="col-lg-4">
-                                                <div class="form-group">
-                                                    <label for="website">Website</label>
-                                                    <input type="text" id="website" class="form-control" />
-                                                </div>
+                                                <input type="hidden" name="product_id" value="{{ $product->id }}">
                                             </div>
                                             <div class="col-lg-4">
                                                 <div class="submit-btn">
-                                                    <a href="#" class="btn btn-black">Post Comment</a>
+                                                    <button type="submit" class="btn btn-black">Post Comment</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -229,8 +240,8 @@
 
             </div>
             <!--=================================
-    RELATED PRODUCTS BOOKS
-    ===================================== -->
+                    RELATED PRODUCTS BOOKS
+                    ===================================== -->
             <section class="">
                 <div class="container">
                     <div class="section-title section-title--bordered">
@@ -594,49 +605,7 @@
         </main>
     </div>
     <!--=================================
-    Brands Slider
-    ===================================== -->
-    <section class="section-margin">
-        <h2 class="sr-only">Brand Slider</h2>
-        <div class="container">
-            <div class="brand-slider sb-slick-slider border-top border-bottom"
-                data-slick-setting='{
-                                    "autoplay": true,
-                                    "autoplaySpeed": 8000,
-                                    "slidesToShow": 6
-                                    }'
-                data-slick-responsive='[
-        {"breakpoint":992, "settings": {"slidesToShow": 4} },
-        {"breakpoint":768, "settings": {"slidesToShow": 3} },
-        {"breakpoint":575, "settings": {"slidesToShow": 3} },
-        {"breakpoint":480, "settings": {"slidesToShow": 2} },
-        {"breakpoint":320, "settings": {"slidesToShow": 1} }
-    ]'>
-                <div class="single-slide">
-                    <img src="assets/image/others/brand-1.jpg" alt="" />
-                </div>
-                <div class="single-slide">
-                    <img src="assets/image/others/brand-2.jpg" alt="" />
-                </div>
-                <div class="single-slide">
-                    <img src="assets/image/others/brand-3.jpg" alt="" />
-                </div>
-                <div class="single-slide">
-                    <img src="assets/image/others/brand-4.jpg" alt="" />
-                </div>
-                <div class="single-slide">
-                    <img src="assets/image/others/brand-5.jpg" alt="" />
-                </div>
-                <div class="single-slide">
-                    <img src="assets/image/others/brand-6.jpg" alt="" />
-                </div>
-                <div class="single-slide">
-                    <img src="assets/image/others/brand-1.jpg" alt="" />
-                </div>
-                <div class="single-slide">
-                    <img src="assets/image/others/brand-2.jpg" alt="" />
-                </div>
-            </div>
-        </div>
-    </section>
+                    Brands Slider
+                    ===================================== -->
+
 @endsection

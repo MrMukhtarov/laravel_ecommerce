@@ -28,10 +28,16 @@ class Product extends Model
     {
         return $this->belongsToMany(Tag::class,"product_tags",'tag_id','product_id');
     }
+
+    public function reviews(){
+        return $this->hasMany(Comment::class);
+    }
+
     public function images()
     {
         return $this->hasMany(ProductImage::class, "product_id");
     }
+    
     public function cat($id){
         $product = Product::where("id",$id)->first();
         if(isset($product->category_id) && isEmpty($product->category_id)){

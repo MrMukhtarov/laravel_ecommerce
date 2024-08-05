@@ -3,6 +3,7 @@
 use App\Http\Controllers\admin\AdminLoginController;
 use App\Http\Controllers\admin\AdminRegisterController;
 use App\Http\Controllers\admin\ProductController;
+use App\Http\Controllers\admin\SubCategoryController;
 use App\Http\Controllers\admin\UserController;
 use App\Http\Controllers\front\AuthController;
 use App\Http\Controllers\front\CommentController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\front\ProductDetailController;
 use App\Http\Controllers\front\ShopController;
 use App\Http\Controllers\LogoutController;
 use App\Models\Message;
+use App\Models\SubCategory;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -44,4 +46,6 @@ Route::prefix('admin1')->group(function () {
     Route::get("/single-user-update/{slug}", [UserController::class, "UpdateSingleUserIndex"])->name("admin.single.user.update");
     Route::post("/single-user-updateA/{slug}", [UserController::class, "UpdateSingleUser"])->name("admin.single.user.updateA");
     Route::get("/products", [ProductController::class, "index"])->name("admin.products");
+    Route::get("/products-crate", [ProductController::class, "createView"])->name("admin.products.create");
+    Route::get("/subcategories-categoryId/{id}", [SubCategoryController::class, "get_by_category_id"])->name("admin.subcategoryByCategoryId");
 });

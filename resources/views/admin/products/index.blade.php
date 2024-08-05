@@ -1,9 +1,9 @@
 @extends('admin.layouts.app')
-@section('title', 'Products')
+@section('title', 'Admin | Products')
 @section('content')
 @push('css')
     <style>
-        td{
+        td,th{
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis
@@ -12,7 +12,10 @@
 @endpush
 <main>
     <div class="container-fluid px-4">
+        <div class="d-flex justify-content-between align-items-center">
         <h1 class="mt-4">Tables</h1>
+        <a class="btn btn-sm btn-primary" href="{{route('admin.products.create')}}">Create</a>
+        </div>
         <ol class="breadcrumb mb-4">
             <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
             <li class="breadcrumb-item active">Products</li>
@@ -43,6 +46,7 @@
                             <th>Slug</th>
                             <th>Create Date</th>
                             <th>Update Date</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -60,11 +64,16 @@
                         <td>{{$product->discountPercent}}%</td>
                         <td>{{Str::substr($product->text, 0, 20)}}...</td>
                         <td>{{Str::substr($product->description, 0, 20)}}...</td>
-                        <td>{{$product->category_id}}</td>
-                        <td>{{$product->sub_categories_id}}</td>
+                        <td>{{$product->cat($product->id )}}</td>
+                        <td>{{$product->sub_cat($product->id)}}</td>
                         <td>{{$product->slug}}</td>
                         <td>{{$product->created_at}}</td>
                         <td>{{$product->updated_at}}</td>
+                        <td>
+                            <a class="btn btn-sm btn-warning" href="">Update</a>
+                            <a class="btn btn-sm btn-danger" href="">Delete</a>
+                            <a class="btn btn-sm btn-primary" href="">Comments</a>
+                        </td>
                     </tr>
                        @endforeach
                     </tbody>

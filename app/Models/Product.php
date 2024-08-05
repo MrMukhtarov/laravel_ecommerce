@@ -39,15 +39,25 @@ class Product extends Model
     }
     
     public function cat($id){
-        $product = Product::where("id",$id)->first();
-        if(isset($product->category_id) && isEmpty($product->category_id)){
-            $cat = Category::where("id",$product->category_id)->first();
+        $product = Product::find($id);
+        if(!empty($product->category_id)){
+            $cat = Category::find($product->category_id);
             return $cat->name;
         }
-        if(isset($product->sub_categories_id) && isEmpty($product->sub_categories_id)){
-            $cat = SubCategory::where("id",$product->sub_categories_id)->first();
+    }
+    
+    public function sub_cat($id){
+        $product = Product::find($id);
+        if(!empty($product->sub_categories_id)){
+            $cat = SubCategory::find($product->sub_categories_id);
             return $cat->name;
         }
+    }
+
+    public function get_category_name($id){
+        $sub = SubCategory::find($id);
+        $category_name = Category::where('id',$sub->category_id)->first();
+        return $category_name->name;
     }
 
     
